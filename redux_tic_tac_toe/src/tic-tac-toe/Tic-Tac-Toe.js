@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './tic-tac-toe.css'
 import { useSelector, useDispatch } from 'react-redux'
-import { turns, checkWinner, nameWinner } from '../actions/action'
+import { turns, resetBoard, sendWinner } from '../actions/action'
 
 function TicTacToe() {
     const dispatch = useDispatch()
@@ -11,79 +11,41 @@ function TicTacToe() {
     const winner = useSelector(state => state.winner)
     // ------------Local states------------
 
-    const checkForWin = tiles => {
-        const combos = {
-            across: [
-                [0, 1, 2],
-                [3, 4, 5],
-                [6, 7, 8],
-            ],
-            down: [
-                [0, 3, 6],
-                [1, 4, 7],
-                [2, 5, 8],
-            ],
-            diagonal: [
-                [0, 4, 8],
-                [2, 4, 6],
-            ],
-        }
+    const combos = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+    ];
 
-        for (let combo in combos) {
-            combos[combo].forEach(pattern => {
-                if (!tiles.includes('')) {
-                    dispatch(nameWinner('Tie'))
-                }
-                if (
-                    tiles[pattern[0]] === '' ||
-                    tiles[pattern[1]] === '' ||
-                    tiles[pattern[2]] === ''
-                ) {
-                } else if (
-                    tiles[pattern[0]] === tiles[pattern[1]] &&
-                    tiles[pattern[0]] === tiles[pattern[2]]
-                ) {
-                    dispatch(nameWinner(tiles[pattern[0]]))
-                }
-            })
-        }
+    function checkForWinner(currBoard) {
+        combos.forEach((pattern) => {
+            if (currBoard[pattern[0]] === "" || currBoard[pattern[1]] === "" || currBoard[pattern[2]] === "") {
+
+            } else if (currBoard[pattern[0]] === currBoard[pattern[1]] && currBoard[pattern[1]] === currBoard[pattern[2]]) {
+                dispatch(sendWinner(currBoard[pattern[0]]));
+            }
+            else if (!currBoard.includes('') && !winner) {
+                dispatch(sendWinner('Tie'));
+            }
+        })
     }
 
-    // const handleClick = num => {
-    //     if (winner) {
-    //         alert('Game is won')
-    //         return
-    //     }
-    //     if (cells[num] !== '') {
-    //         alert('Already Clicked')
-    //         return
-    //     }
-    //     if (turn === 'X') {
-    //         tiles[num] = 'X'
-    //         // setTurn('O')
-    //     } else {
-    //         tiles[num] = 'O'
-    //         // setTurn('X')
-    //     }
-    //     checkForWin(tiles)
-    //     setCells(tiles)
-    // }
-
-    // const resetBoard = () => {
-    //     setWinner(null)
-    //     setCells(Array(9).fill(''))
-    // }
-
-    // const Cell = ({ num }) => {
-    //     return <td style={{ color: '#00d8ff' }} onClick={() => 
-    //         handleClick(num)}>{cells[num]}</td>
-    // }
-    const Cell = ({ num }) => {
+    function Cell({ num }) {
         return <td onClick={() => {
+            if (board[num] || winner) return
             dispatch(turns(num))
-            checkForWin(board)}
+        }
         } >{board[num]}</td>
     }
+
+    useEffect(() => {
+        checkForWinner(board)
+    }, [board])
 
     return (
         <div className='container'>
@@ -112,13 +74,13 @@ function TicTacToe() {
             {winner === 'Tie' && (
                 <>
                     <p style={{ color: '#00d8ff' }}>Tie</p>
-                    {/* <button onClick={() => resetBoard()}>Play Again</button> */}
+                    <button onClick={() => dispatch(resetBoard())}>Play Again</button>
                 </>
             )}
             {winner !== 'Tie' && winner && (
                 <>
                     <p style={{ color: '#00d8ff' }}>{winner} is the Winner!</p>
-                    {/* <button onClick={() => resetBoard()}>Play Again</button> */}
+                    <button onClick={() => dispatch(resetBoard())}>Play Again</button>
                 </>
             )}
         </div>

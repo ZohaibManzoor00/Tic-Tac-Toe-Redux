@@ -5,16 +5,15 @@ export const turns = pos => {
     }
 }
 
-export const checkWinner = board => {
+export const resetBoard = () => {
     return {
-        type: 'CHECK_WINNER',
-        payload: board
+        type: 'RESTART',
     }
 }
 
-export const nameWinner = player => {
+export const sendWinner = player => {
     return {
-        type: 'NAME_WINNER',
+        type: 'CHECK',
         payload: player
     }
 }
